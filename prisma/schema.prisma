@@ -1,13 +1,36 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider     = "prisma-client-js"
+  moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "sqlite"
+}
+
+model Wallet {
+  id     String        @id
+  stocks WalletStock[]
+}
+
+model WalletStock {
+  id        Int    @id @default(autoincrement())
+  walletId  String
+  stockName String
+  quantity  Int
+  wallet    Wallet @relation(fields: [walletId], references: [id])
+
+  @@unique([walletId, stockName])
+}
+
+model BankStock {
+  name     String @id
+  quantity Int
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  type      String
+  walletId  String
+  stockName String
+  createdAt DateTime @default(now())
 }
