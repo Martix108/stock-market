@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { WalletsModule } from './wallets/wallets.module';
 import { StocksModule } from './stocks/stocks.module';
 import { LogModule } from './log/log.module';
+import { ChaosModule } from './chaos/chaos.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { LogModule } from './log/log.module';
     WalletsModule,
     StocksModule,
     LogModule,
+    ChaosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
