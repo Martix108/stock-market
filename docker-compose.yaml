@@ -7,7 +7,7 @@ services:
     environment:
       - DATABASE_URL=file:./prisma/dev.db
     volumes:
-      - ./prisma/dev.db:/app/prisma/dev.db
+      - /prisma:/app/prisma
 
   nginx:
     image: nginx:latest
