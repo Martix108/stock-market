@@ -13,4 +13,4 @@ RUN npx prisma generate
 RUN npm run build
 
 EXPOSE 3000
-CMD npx prisma db push --schema ./prisma/schema.prisma && npm run start:prod
+CMD npx prisma db push --schema=/app/prisma/schema.prisma && npm run start:prod
