@@ -1,98 +1,72 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Simplified Stock Market
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A high-availability, simplified stock market REST API. This service manages bank, user wallets, and processes buy/sell transactions with audit log.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Architecture and High Availability
 
-## Description
+To meet the non-functional requirements and ensure High Availability, this solution is built with a following architecture:
+* **Load Balancing** - An `nginx` reverse proxy acts as the entry point, distributing incoming traffic across multiple API instances.
+* **Replication** - This application runs with `2 replicas`.
+* **Shared Persistence (SQLite)** - Even though SQLite is a file-based database, High Availability is achieved by using a **Docker Shared Volume**. Both API replicas mount the same storage, ensuring that data written by one instance is immediately available to the other.
+* **Resilience** - If one instance is killed (e.g. via the `/chaos` endpoint), Nginx automatically reroutes all traffic to the healthy replica.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
+* [Docker](https://www.docker.com/)
+* [Docker Compose](https://docs.docker.com/compose/)
 
-## Project setup
+## Getting Started
 
+The application can be started using a single command, running across all major operating systems (Windows/Linux/macOS) and architectures (x64/ARM64).
+
+You can specify the port (XXXX) by passing the `PORT` environment variable to the startup command.
+
+**Start the application on port 8080 (default) or any custom port:**
+* For Linux/macOS:
+  ```bash
+  PORT=8080 docker compose up --build -d
+  ```
+  
+* For Windows (PowerShell):
+  ```bash
+  $env:PORT=8080; docker compose up --build -d
+  ```
+
+The API will be available at `http://localhost:8080`
+
+**To shut down and clean up resources:**
 ```bash
-$ npm install
+docker compose down -v
 ```
 
-## Compile and run the project
+## API Endpoints
 
-```bash
-# development
-$ npm run start
+### Bank Operations
+* `POST /stocks` - Initialize the bank's stock inventory.
+  * Body: `{ "stocks": [ { "name": "stock1", "quantity": 99 }, { "name": "stock2", "quantity": 1 } ] }`
+* `GET /stocks` - Retrieve the current inventory of the bank.
 
-# watch mode
-$ npm run start:dev
+### Wallet Operations
+* `POST /wallets/{wallet_id}/stocks/{stock_name}` - Buy or sell a stock.
+  * Body: `{ "type": "buy" }` or `{ "type": "sell" }`
+* `GET /wallets/{wallet_id}` - Get the current state of a specific wallet
+* `GET /wallets/{wallet_id}/stocks/{stock_name}` - get the quantity of a specific stock in a wallet
 
-# production mode
-$ npm run start:prod
-```
+### System and Audit
+* `GET /log` - retrieve the audit log of all successful wallet operations.
+* `POST /chaos` - kills the instance serving the request
 
-## Run tests
+## Tech Stack
 
-```bash
-# unit tests
-$ npm run test
+* **Framework** - Node.js / NestJS (TypeScript)
+* **Database** - SQLite
+* **ORM** - Prisma
+* **Infrastructure** - Docker, Docker Compose, Nginx
 
-# e2e tests
-$ npm run test:e2e
+## Photos
 
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Below are photos showing testing API using Postman
+<div align="center">
+    <img src="./readme_img/GET_stocks.PNG" width="80%">
+    <img src="./readme_img/POST_stocks.PNG" width="80%">
+    <img src="./readme_img/GET_wallets.PNG" width="80%">
+</div>
