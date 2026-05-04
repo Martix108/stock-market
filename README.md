@@ -48,19 +48,19 @@ docker compose down -v
 ### Wallet Operations
 * `POST /wallets/{wallet_id}/stocks/{stock_name}` - Buy or sell a stock.
   * Body: `{ "type": "buy" }` or `{ "type": "sell" }`
-* `GET /wallets/{wallet_id}` - Get the current state of a specific wallet
-* `GET /wallets/{wallet_id}/stocks/{stock_name}` - get the quantity of a specific stock in a wallet
+* `GET /wallets/{wallet_id}` - Get the current state of a specific wallet.
+* `GET /wallets/{wallet_id}/stocks/{stock_name}` - get the quantity of a specific stock in a wallet.
 
 ### System and Audit
 * `GET /log` - retrieve the audit log of all successful wallet operations.
-* `POST /chaos` - kills the instance serving the request
+* `POST /chaos` - kills the instance serving the request.
 
 ## Tech Stack
 
-* **Framework** - Node.js / NestJS (TypeScript)
-* **Database** - SQLite
-* **ORM** - Prisma
-* **Infrastructure** - Docker, Docker Compose, Nginx
+* **Framework** - Node.js / NestJS (TypeScript),
+* **Database** - SQLite,
+* **ORM** - Prisma,
+* **Infrastructure** - Docker, Docker Compose, Nginx.
 
 ## Photos
 
